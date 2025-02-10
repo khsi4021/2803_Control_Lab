@@ -6,11 +6,22 @@ a=-9.81;
 function v = V_perSec(t,a)
     acceleration = a;
     v = sqrt(2*9.81*125) +acceleration*(t);
+
 end
 s = (2*9.81*125)/(2*(-a));
-t = linspace(0,5,20);
+t = linspace(0,6,50); %can change the 5 to a 6 and then add in a cutoff to get v=0, and change 20 to 50
 g = a/9.81;
 v = V_perSec(t,a);
+
+for i=1:length(v)
+    if v(i) <= 0
+        v(i) = 0;
+    end
+end
+
+I = find(v==0,1);
+dist = v(1,1)*t(1,I) + .5*a* (t(1,I))^2;
+
 hold on
 plot(t,v);
 xlabel('time(s)')
