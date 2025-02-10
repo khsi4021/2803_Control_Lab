@@ -1,0 +1,49 @@
+% Calculate G's
+
+%blue section
+gs_up_blue = cosd(theta);
+gs_forward_blue = sind(theta);
+
+%red section
+for i=1:999
+    x_change(i) = xArc(i+1)-xArc(i);
+    z_change(i) = zArc(i+1)-zArc(i);
+end
+
+theta_red = atand((abs(x_change)) ./ (abs(z_change)));
+
+gs_up_red = sind(theta_red);
+gs_forward_red = cosd(theta_red(1:499));
+gs_back_red = cosd(theta_red(501:999));
+
+%red section max
+gs_up_red_max = max(gs_up_red);
+gs_forward_red_max = max(gs_forward_red);
+gs_back_red_max = max(gs_back_red);
+
+
+%% path length
+
+%blue section
+l_b = sqrt( xDrop(1:1)^2 + zDrop(1:1)^2);
+length_blue = 0:.5:l_b;
+
+gs_up_blue_vec = zeros(1,length(length_blue));
+gs_up_blue_vec(:) = gs_up_blue;
+gs_forward_blue_vec = zeros(1,length(length_blue));
+gs_forward_blue_vec(:) = gs_forward_blue;
+
+figure(2);
+subplot(2,1,1);
+plot(length_blue, gs_up_blue_vec)
+ylabel('gs up');
+xlabel('pathlength');
+
+subplot(2,1,2);
+plot(length_blue, gs_forward_blue_vec);
+ylabel('gs_forward');
+xlabel('pathlength');
+
+for i=1:1000
+    l_r(i) = sqrt( (xArc(i+1)-xArc(i))^2 + (zArc(i+1)-zArc(i))^2 );
+end
