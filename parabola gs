@@ -34,16 +34,41 @@ gs_forward_blue_vec = zeros(1,length(length_blue));
 gs_forward_blue_vec(:) = gs_forward_blue;
 
 figure(2);
-subplot(2,1,1);
+%gs up for blue part of parabola
+subplot(3,3,1);
 plot(length_blue, gs_up_blue_vec)
 ylabel('gs up');
 xlabel('pathlength');
 
-subplot(2,1,2);
+subplot(3,3,2);
+%gs forward for blue part of parabola
 plot(length_blue, gs_forward_blue_vec);
 ylabel('gs_forward');
 xlabel('pathlength');
 
-for i=1:1000
+for i=1:999
     l_r(i) = sqrt( (xArc(i+1)-xArc(i))^2 + (zArc(i+1)-zArc(i))^2 );
 end
+
+l_r = sum(l_r,'all');
+length_red = linspace(0,l_r,length(gs_up_red));
+
+subplot(3,3,3);
+%gs up for red part of parabola
+plot(length_red, gs_up_red);
+ylabel('gs up');
+xlabel('pathlength');
+
+subplot(3,3,4);
+%gs forward for red part of parabola
+plot(length_red(1:499), gs_forward_red);
+ylabel('gs forward');
+xlabel('pathlength');
+
+subplot(3,3,5);
+%gs backwards for red part of parabola
+plot(length_red(501:999), gs_back_red);
+ylabel('gs backwards');
+xlabel('pathlength');
+
+
