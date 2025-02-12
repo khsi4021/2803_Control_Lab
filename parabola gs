@@ -1,8 +1,18 @@
-% Calculate G's
+%% Calculate G's
+
+%theta for blue section
+z_delta = zDrop(1,1) - zDrop(1,1000);
+x_delta = xDrop(1,1) - xDrop(1,1000);
+theta_b = abs(atand(z_delta / x_delta));
+
+%velocity function for red section
+h0_red = 125 - zDrop(1,1); %z-position where red section starts
+v = sqrt(2*9.81 * (125 - h0_red - zArc)); %should it be -zArc or plus ???
+r_red = 20; %radius of part of loop leading in into the parabola
 
 %blue section
-gs_up_blue = cosd(theta);
-gs_forward_blue = sind(theta);
+gs_up_blue = cosd(theta_b);
+gs_forward_blue = sind(theta_b);
 
 %red section
 for i=1:999
@@ -12,7 +22,8 @@ end
 
 theta_red = atand((abs(x_change)) ./ (abs(z_change)));
 
-gs_up_red = sind(theta_red);
+%gs red section
+gs_up_red = (v(1:999).^2)/(r_red*9.81) + sind(theta_red);
 gs_forward_red = cosd(theta_red(1:499));
 gs_back_red = cosd(theta_red(501:999));
 
@@ -21,30 +32,34 @@ gs_up_red_max = max(gs_up_red);
 gs_forward_red_max = max(gs_forward_red);
 gs_back_red_max = max(gs_back_red);
 
+%gs on the parabola
+theta_para = abs(atand(xParabola ./ zParabola));
+h0_para = 125 + xDrop(1,1000) + zArc(1,1000);
+v_para = sqrt(2*9.81* (h0_para + abs(zParabola)));
+
+
+top = (1 + (tand(theta_para) + (g .* xParabola) ./ ((v_para.*cosd(theta_para)).^2)).^2 ).^(3/2) ;
+bot = g ./ ((v_para.*cosd(theta_para)).^2);
+radius_curvature_para = top./bot;
+
+gs_up_para = sind(theta_para) + (v_para(1:10000).^2)./(radius_curvature_para * 9.81);
+
+figure(6);
+plot(xParabola, gs_up_para);
+xlabel('pathlength');
+ylabel('gs through seat up');
+title('gs up through seat for para');
 
 %% path length
 
 %blue section
 l_b = sqrt( xDrop(1:1)^2 + zDrop(1:1)^2);
-length_blue = 0:.5:l_b;
+length_blue = linspace(0,l_b,1000);
 
 gs_up_blue_vec = zeros(1,length(length_blue));
 gs_up_blue_vec(:) = gs_up_blue;
 gs_forward_blue_vec = zeros(1,length(length_blue));
 gs_forward_blue_vec(:) = gs_forward_blue;
-
-figure(2);
-%gs up for blue part of parabola
-subplot(3,3,1);
-plot(length_blue, gs_up_blue_vec)
-ylabel('gs up');
-xlabel('pathlength');
-
-subplot(3,3,2);
-%gs forward for blue part of parabola
-plot(length_blue, gs_forward_blue_vec);
-ylabel('gs_forward');
-xlabel('pathlength');
 
 for i=1:999
     l_r(i) = sqrt( (xArc(i+1)-xArc(i))^2 + (zArc(i+1)-zArc(i))^2 );
@@ -53,22 +68,33 @@ end
 l_r = sum(l_r,'all');
 length_red = linspace(0,l_r,length(gs_up_red));
 
-subplot(3,3,3);
-%gs up for red part of parabola
-plot(length_red, gs_up_red);
+%% total figures
+
+figure(3);
+%gs up through riders seat(blue and red section)
+hold on
+plot(length_blue, gs_up_blue_vec);
+plot(length_red + l_b, gs_up_red);
 ylabel('gs up');
 xlabel('pathlength');
+title('gs up through seat');
 
-subplot(3,3,4);
-%gs forward for red part of parabola
-plot(length_red(1:499), gs_forward_red);
-ylabel('gs forward');
+figure(4);
+%gs from seat restraint(blue and red section)
+hold on
+plot(length_blue, abs(gs_forward_blue_vec));
+plot(length_red(1:499) + l_b, gs_forward_red);
+plot([(.5*l_r)+l_b ; l_r+l_b], [0;0]);
+ylabel('gs_forward');
 xlabel('pathlength');
+title('gs back from seat restraint');
 
-subplot(3,3,5);
-%gs backwards for red part of parabola
-plot(length_red(501:999), gs_back_red);
-ylabel('gs backwards');
+figure(5);
+%gs from back of seat pushing
+hold on
+plot([0;(l_b+(l_r*.5))], [0;0]);
+plot(length_red(501:999) + l_b, gs_back_red);
+ylabel('gs back of seat');
 xlabel('pathlength');
-
+title('gs through back of seat');
 
