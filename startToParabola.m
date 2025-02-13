@@ -117,18 +117,6 @@ xlim([-100 200])
 ylim([-150 150])
 zlim([-150 150])
 
-% % Calculate Loop G's
-% sLoop = linspace(0,2*pi*rLoop);
-% gLoop = ((2.*(125-(min(zBanked)+rLoop.*(1-cos(sLoop./rLoop)))))/rLoop)-sin((sLoop./rLoop)+(3*pi/2));
-% figure
-% plot(sLoop, gLoop)
-% grid on
-% xlabel('Arc Length')
-% ylabel("G's")
-% xlim([0 2*pi*rLoop])
-% ylim([-1 6])
-% title("G's vs arc length, loop section")
-
 % Transition from loop to brake section
 % Arc
 xStrTrans = linspace(min(xBanked), min(xBanked - 50), 1000);
@@ -143,8 +131,8 @@ plot3(xTransLoop, min(yBanked)*ones(1,length(xTransLoop)), zTransLoop, 'b')
 lengthTransLoop = rTrans*pi/6;
 
 % % G's along arc
-% sTrans = linspace(0, rTrans*pi/6, 1000)
-% GArcTrans = ((2*(125-min(zBanked)+rTrans*(1-sin((pi/2)-(sTrans/rTrans)))))/rTrans)-sin((pi/2)-(sTrans/rTrans));
+ sTrans = linspace(0, rTrans*pi/6, 1000);
+ GArcTrans = ((2*(125-min(zBanked)+rTrans*(1-sin((pi/2)-(sTrans/rTrans)))))/rTrans)-sin((pi/2)-(sTrans/rTrans));
 % figure
 % plot(sTrans, GArcTrans)
 
@@ -164,6 +152,19 @@ lengthArcFinal = rArcFinal*pi/6;
 
 % Calculate total length
 lengthTot = lengthDrop + lengthArc + lengthParabola+ length_Turn_Trans + S_banked+lengthLoop + lengthTransLoop + lengthStrDec + lengthArcFinal
+
+
+%% Calculate Loop G's
+ sLoop = linspace(0,2*pi*rLoop);
+ gLoop = ((2.*(125-(min(zBanked)+rLoop.*(1-cos(sLoop./rLoop)))))/rLoop)-sin((sLoop./rLoop)+(3*pi/2));
+ figure
+ plot(sLoop, gLoop)
+ grid on
+ xlabel('Arc Length')
+ ylabel("G's")
+ xlim([0 2*pi*rLoop])
+ ylim([-1 6])
+ title("G's vs arc length, loop section")
 
 %% plots for gs during banked turn
 pathlength_banked = linspace(0,S_banked,100);
@@ -187,7 +188,7 @@ ylabel('gs up through the seat');
 title('gs up through the seat for the banked turn');
 hold off
 
-%% gs on whole track plot
+%% gs calculations
 
 %theta for initial section section
 z_delta = zDrop(1,1) - zDrop(1,1000);
@@ -221,25 +222,6 @@ gs_up_red_max = max(gs_up_red);
 gs_forward_red_max = max(gs_forward_red);
 gs_back_red_max = max(gs_back_red);
 
-%{ 
-gs on the parabola
-theta_para = abs(atand(xParabola ./ zParabola));
-h0_para = 125 + xDrop(1,1000) + zArc(1,1000);
-v_para = sqrt(2*9.81* (h0_para + abs(zParabola)));
-
-top = (1 + (tand(theta_para) + (g .* xParabola) ./ ((v_para.*cosd(theta_para)).^2)).^2 ).^(3/2) ;
-bot = g ./ ((v_para.*cosd(theta_para)).^2);
-radius_curvature_para = top./bot;
-
-gs_up_para = sind(theta_para) + (v_para(1:10000).^2)./(radius_curvature_para * 9.81);
-
-figure(6);
-plot(xParabola, gs_up_para);
-xlabel('pathlength');
-ylabel('gs through seat up');
-title('gs up through seat for para');
-%}
-
 % path length
 %first section
 l_b = sqrt( xDrop(1:1)^2 + zDrop(1:1)^2);
@@ -253,17 +235,26 @@ gs_forward_blue_vec(:) = gs_forward_blue;
 for i=1:999
     l_r(i) = sqrt( (xArc(i+1)-xArc(i))^2 + (zArc(i+1)-zArc(i))^2 );
 end
-
 l_r = sum(l_r,'all');
 length_red = linspace(0,l_r,length(gs_up_red));
 
-% total figures
+%% total figures
+
+pathlength_para = linspace(0,lengthParabola,100);
+gs_up_para = linspace(0,0,100);
 
 figure();
-%gs up through riders seat(blue and red section)
+%gs up through riders seat
 hold on
 plot(length_blue, gs_up_blue_vec);
 plot(length_red + l_b, gs_up_red);
+plot(l_b + l_r + pathlength_para,gs_up_para);
+%add in transition from parabola to banked turn
+plot(l_b + l_r + lengthParabola + pathlength_banked, gs_banked_up_vec);
+plot(l_b + l_r + lengthParabola + pathlength_banked(1,100) + sLoop, gLoop);
+plot(l_b + l_r + lengthParabola + pathlength_banked(1,100) + sLoop(1,100) + sTrans,GArcTrans);
+
+xline([l_b l_b+l_r l_b+l_r+lengthParabola],'--');
 ylabel('gs up');
 xlabel('pathlength');
 title('gs up through seat');
