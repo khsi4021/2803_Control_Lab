@@ -395,6 +395,7 @@ plot(length_1 + S_banked + length_2_vec, gs_lat_0);
 
 xline(length_1,'--');
 xline(length_1+S_banked,'--');
+yline(3,'--','g limit');
 ylabel('gs lateral');
 xlabel('Pathlength');
 title('gs lateral');
