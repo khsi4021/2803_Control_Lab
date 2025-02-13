@@ -74,11 +74,17 @@ length_Turn_Trans = (60.6*(pi/180))*50;
 %banked turn
 rBanked = 50; %radius of turn
 g = 9.81;
-vBanked = 43; %velocity
 thetaBanked = 70; %degrees from upright of roller cart
 
 %placeholder values, delete later
 m = 10;
+
+theta_circ = 0:pi/50:pi; %in radians
+yBanked = (rBanked * cos(theta_circ))-49;
+xBanked = (rBanked * sin(theta_circ))+max(xTurn_Trans);
+zBanked = zeros(1,51)+min(zTurn_Trans);
+
+vBanked = calcVelocity(125,zBanked(1,1)); %velocity
 
 F_r = (m*vBanked.^2)/rBanked; %force in radial direction
 F_g = m*g; %force of gravity
@@ -92,10 +98,6 @@ gs_banked_lateral = (F_L)/(m*g); %gs through sidebar
 
 S_banked = pi*rBanked; %path length
 
-theta_circ = 0:pi/50:pi; %in radians
-yBanked = (rBanked * cos(theta_circ))-49;
-xBanked = (rBanked * sin(theta_circ))+max(xTurn_Trans);
-zBanked = zeros(1,51)+min(zTurn_Trans);
 
 hold on
 plot3(xBanked,yBanked,zBanked, 'b');
