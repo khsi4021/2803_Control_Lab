@@ -117,17 +117,54 @@ xlim([-100 200])
 ylim([-150 150])
 zlim([-150 150])
 
-% Calculate Loop G's
-sLoop = linspace(0,2*pi*rLoop);
-gLoop = ((2.*(125-(min(zBanked)+rLoop.*(1-cos(sLoop./rLoop)))))/rLoop)-sin((sLoop./rLoop)+(3*pi/2));
-figure
-plot(sLoop, gLoop)
-grid on
-xlabel('Arc Length')
-ylabel("G's")
-xlim([0 2*pi*rLoop])
-ylim([-1 6])
+% % Calculate Loop G's
+% sLoop = linspace(0,2*pi*rLoop);
+% gLoop = ((2.*(125-(min(zBanked)+rLoop.*(1-cos(sLoop./rLoop)))))/rLoop)-sin((sLoop./rLoop)+(3*pi/2));
+% figure
+% plot(sLoop, gLoop)
+% grid on
+% xlabel('Arc Length')
+% ylabel("G's")
+% xlim([0 2*pi*rLoop])
+% ylim([-1 6])
+% title("G's vs arc length, loop section")
+
+% Transition from loop to brake section
+% Arc
+xStrTrans = linspace(min(xBanked), min(xBanked - 50), 1000);
+hold on
+plot3(xStrTrans, min(yBanked) * ones(1, length(xStrTrans)), min(zBanked) * ones(1, length(xStrTrans)), 'b')
+
+rTrans = ((125-min(zBanked))/3)+5;
+thetaTrans = linspace(pi/2, 2*pi/3, 1000);
+xTransLoop = (rTrans.*cos(thetaTrans))+min(xStrTrans);
+zTransLoop = (rTrans.*sin(thetaTrans))-rTrans+min(zBanked);
+plot3(xTransLoop, min(yBanked)*ones(1,length(xTransLoop)), zTransLoop, 'b')
+lengthTransLoop = rTrans*pi/6;
+
+% % G's along arc
+% sTrans = linspace(0, rTrans*pi/6, 1000)
+% GArcTrans = ((2*(125-min(zBanked)+rTrans*(1-sin((pi/2)-(sTrans/rTrans)))))/rTrans)-sin((pi/2)-(sTrans/rTrans));
+% figure
+% plot(sTrans, GArcTrans)
+
+% Straight descent
+xStrDec = linspace(min(xTransLoop), sqrt(3)*(50*(1-cos(pi/6))-((-1/sqrt(3))*min(xTransLoop)+min(zTransLoop))));
+zStrDec = (1/sqrt(3))*xStrDec-(1/sqrt(3))*min(xTransLoop)+min(zTransLoop);
+plot3(xStrDec, min(yBanked)*ones(1,length(xStrDec)), zStrDec, 'b')
+lengthStrDec = sqrt(((max(xStrDec)-min(xStrDec))^2+(max(zStrDec)-min(zStrDec))^2));
+
+% Arc to z=0
+rArcFinal = 50;
+thetaArcFinal = linspace(-pi/3, -pi/2, 1000);
+xArcFinal = rArcFinal.*cos(thetaArcFinal)+min(xStrDec)-50*sin(pi/6);
+zArcFinal = rArcFinal.*sin(thetaArcFinal)+50;
+plot3(xArcFinal, min(yBanked)*ones(1,length(xArcFinal)), zArcFinal, 'b')
+lengthArcFinal = rArcFinal*pi/6;
 
 % Calculate total length
-lengthTot = lengthDrop + lengthArc + lengthParabola + length_Turn_Trans + S_banked+lengthLoop
+lengthTot = lengthDrop + lengthArc + lengthParabola+ length_Turn_Trans + S_banked+lengthLoop + lengthTransLoop + lengthStrDec + lengthArcFinal
 
+function v = calcVelocity(h0, h)
+v = sqrt(2*9.81*(h0-h))
+end
