@@ -335,9 +335,9 @@ plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) +
 %xlines to devide each section of the track
 xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'--');
 xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)],'--');
-xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)]+lengthStrDec,'--');
-xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)]+lengthStrDec+lengthArcFinal,'--');
-xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)]+lengthStrDec+lengthArcFinal+dist_brake,'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake],'--');
 yline(6,'--','g limit');
 ylabel('gs up');
 xlabel('pathlength');
@@ -378,6 +378,26 @@ plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) +
 ylabel('gs back of seat');
 xlabel('pathlength');
 title('gs through back of seat');
+
+
+%% plot for lateral gs for whole coaster
+length_1 = l_b+l_r+lengthParabola+length_Turn_Trans; %pathlength up until banked turn
+length_1_vec = linspace(0,length_1,100);
+length_2 = sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake; %pathlength after banked turn
+length_2_vec = linspace(0,length_2,100);
+gs_lat_0 = zeros(1,100);
+
+figure();
+hold on
+plot(length_1_vec, gs_lat_0);
+plot(length_1+pathlength_banked, gs_banked_lateral_vec);
+plot(length_1 + S_banked + length_2_vec, gs_lat_0);
+
+xline(length_1,'--');
+xline(length_1+S_banked,'--');
+ylabel('gs lateral');
+xlabel('Pathlength');
+title('gs lateral');
 
 %% Velocity function
 function v = calcVelocity(h0, h)
