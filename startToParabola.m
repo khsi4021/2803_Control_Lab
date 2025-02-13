@@ -36,10 +36,10 @@ lengthArc = 2*pi*20*(90/360);
 % Define Constants
 g = -9.81; % [m/s^2]
 t0 = 0; % [s]
-tf = 5; % [s]
+tf = 5.35; % [s]
 t = linspace(t0,tf,10000); % [s]
-V0 = 25; % [m/s]
-theta = 45; % [degrees]
+V0 = calcVelocity(125, max(zArc)); % [m/s]
+theta = 51.9; % [degrees]
 x0 = 0; % [m]
 z0 = 0; % [m]
 
@@ -59,7 +59,6 @@ zlabel('z [m]')
 f = @(t) sqrt((V0*cosd(theta)).^2 + (V0*sind(theta)+(g.*t)).^2);
 lengthParabola = integral(f, t0, tf);
 
-% Transtition to banked turn
 % Arc of a circle with radius 50, starting at an angle of -60.6 degrees
 % with respect to the verticle
 xTurn_Trans = linspace(max(xParabola), 131.9488, 1000);
@@ -279,5 +278,5 @@ xlabel('pathlength');
 title('gs through back of seat');
 
 function v = calcVelocity(h0, h)
-v = sqrt(2*9.81*(h0-h))
+v = sqrt(2*9.81*(h0-h));
 end
