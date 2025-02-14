@@ -112,15 +112,23 @@ hold on
 plot3(xBanked,yBanked,zBanked, 'b');
 
 %% Loop
-rLoop = 40;
-thetaLoop = linspace(0, 2*pi, 1000);
+
+rLoop = 30;
+thetaLoop = linspace(0, 2*pi, 100);
 xLoop = (rLoop .* cos(thetaLoop)) + min(xBanked);
 yLoop = min(yBanked) * ones(1,length(thetaLoop));
-zLoop = (rLoop .* sin(thetaLoop))+min(yBanked)+2*rLoop+90;
+zLoop = (rLoop .* sin(thetaLoop)) + zBanked(51) + rLoop;
 lengthLoop = 2*pi*rLoop;
 
+% velocity for loop section
+v_loop = sqrt(vBanked^2 - 2 * g .* zLoop);
+
+
+% plot loop
 hold on
 plot3(xLoop, yLoop, zLoop, 'b')
+hold off
+
 
 % Reform Axes
 xlim([-100 200])
@@ -213,16 +221,47 @@ lengthTot = lengthDrop + lengthArc + lengthParabola+ length_Turn_Trans + S_banke
 
 
 %% Calculate and plot Loop G's
- sLoop = linspace(0,2*pi*rLoop);
- gLoop = ((2.*(125-(min(zBanked)+rLoop.*(1-cos(sLoop./rLoop)))))/rLoop)-sin((sLoop./rLoop)+(3*pi/2));
- figure();
- plot(sLoop, gLoop)
- grid on
- xlabel('Arc Length')
- ylabel("G's")
- xlim([0 2*pi*rLoop])
- ylim([-1 6])
- title("G's Up Through Seat vs arc length, loop section")
+
+sLoop = linspace(0,2*pi*rLoop);
+
+ % G's on the loop 
+G_loop_forward = sin(thetaLoop); 
+G_loop_back = -G_loop_forward; 
+G_loop_up = (v_loop.^2) / (rLoop*g) + cos(thetaLoop); 
+G_loop_down = -G_loop_up;
+
+% fix entries 
+G_loop_forward(G_loop_forward < 0) = 0; % G force exerted by the back of the seat
+G_loop_back(G_loop_back < 0) = 0; % G force pushing rider back
+G_loop_up(G_loop_up < 0) = 0; % G force exerted by the bottom of the seat
+G_loop_down(G_loop_down < 0) = 0; % G force pushing the rider down
+
+figure();
+subplot(2,1,1)
+plot(thetaLoop, G_loop_forward);
+title("Arc Length vs Forward Loop G-Force");
+xlabel("Arc Length");
+ylabel("G-Force");
+
+subplot(2,1,2)
+plot(thetaLoop, G_loop_back);
+title("Arc Length vs Backward Loop G-Force");
+xlabel("Arc Length");
+ylabel("G-Force");
+
+figure();
+subplot(2,1,1)
+plot(thetaLoop, G_loop_up);
+title("Arc Length vs Upward Loop G-Force");
+xlabel("Arc Length");
+ylabel("G-Force");
+
+subplot(2,1,2)
+plot(thetaLoop, G_loop_down);
+title("Arc Length vs Downward Loop G-Force");
+xlabel("Arc Length");
+ylabel("G-Force");
+
 
 %% plots for gs during banked turn
 pathlength_banked = linspace(0,S_banked,100);
@@ -327,31 +366,58 @@ plot(length_red + l_b, gs_up_red,'b');
 plot(l_b + l_r + pathlength_para,gs_up_para,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans_vec, gs_up_Arc_Trans,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked, gs_banked_up_vec,'b');
-plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop, gLoop,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked + sLoop(1, 100), G_loop_up,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans,GArcTrans,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec_vec, gs_StrDec_up_vec,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal_vec, gs_Arcto0_up,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal + dist_braking_vec,gs_braking_up,'b');
 %xlines to devide each section of the track
-xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'--');
+xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'b--');
 xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)],'--');
 xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec],'--');
 xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal],'--');
 xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake],'--');
-yline(6,'--','g limit');
-ylabel('gs up');
-xlabel('pathlength');
-title('gs up through seat');
+yline(6,'--','G Limit');
+ylabel('G-Force (N)');
+xlabel('Pathlength (m)');
+title('G-Force Pushing Up On Rider By Seat');
 
+%%
 figure();
 %gs from seat restraint(blue and red section)
 hold on
 plot(length_blue, abs(gs_forward_blue_vec));
 plot(length_red(1:499) + l_b, gs_forward_red);
 plot([(.5*l_r)+l_b ; l_r+l_b], [0;0]);
-ylabel('gs_forward');
-xlabel('pathlength');
-title('gs back from seat restraint');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked + sLoop(1, 100), G_loop_back,'b');
+%xlines to devide each section of the track
+xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'b--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake],'--');
+yline(4,'--','G Limit');
+ylabel('G-Force (N)');
+xlabel('Path-Length (m)');
+title('G-Force Pushing Back On Rider By Lap Bar');
+
+%%
+% gs from seat restraint pushing down on rider
+figure();
+hold on; 
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked + sLoop(1, 100), G_loop_down,'b');
+%xlines to devide each section of the track
+xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'b--');
+xline(l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000),'--');
+xline(l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec,'--');
+xline(l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal,'--');
+xline(l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake,'--');
+yline(1,'--','G Limit');
+ylabel('G-Force (N)');
+xlabel('Pathlength (m)');
+title('G-Force Pushing Down On Rider By Lap Bar');
+hold off;
+
 
 
 
@@ -369,15 +435,23 @@ plot(l_b + length_red(501:999), gs_back_red);
 %plot(l_b + l_r + pathlength_para,,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans_vec(3:1000), gs_back__Arc_Trans(2:999),'b');
 %plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked, ,'b');
-%plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop, ,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop, G_loop_forward ,'b');
 %plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans,,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec_vec, gs_StrDec_back_vec);
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal_vec(2:1000), gs_Arcto0_back);
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal + dist_braking_vec, gs_braking_back);
 
-ylabel('gs back of seat');
-xlabel('pathlength');
-title('gs through back of seat');
+%xlines to devide each section of the track
+xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'b--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake],'--');
+yline(4,'--','G Limit');
+
+ylabel('G-Force (N)');
+xlabel('Pathlength (m)');
+title('G-Force Pushing Forward On Rider By Seat');
 
 
 %% plot for lateral gs for whole coaster
@@ -392,12 +466,19 @@ hold on
 plot(length_1_vec, gs_lat_0);
 plot(length_1+pathlength_banked, gs_banked_lateral_vec);
 plot(length_1 + S_banked + length_2_vec, gs_lat_0);
+xline([l_b l_b+l_r l_b+l_r+lengthParabola l_b+l_r+lengthParabola+length_Turn_Trans l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100) l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)],'b--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal],'--');
+xline([l_b+l_r+lengthParabola+length_Turn_Trans+pathlength_banked(1,100)+sLoop(1,100)+sTrans(1,1000)+lengthStrDec+lengthArcFinal+dist_brake],'--');
+yline(3,'--','G Limit');
+
 
 xline(length_1,'--');
 xline(length_1+S_banked,'--');
 yline(3,'--','g limit');
-ylabel('gs lateral');
-xlabel('Pathlength');
+ylabel('G-Force (N)');
+xlabel('Pathlength (m)');
 title('gs lateral');
 
 %% Velocity function
