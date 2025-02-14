@@ -7,71 +7,80 @@ close all;
 % Code for loop
 % V = sqrt(v_0^2 + 2g(h_0 - h))
 
-h_0 = 125;
-h_bottom = 100;
-str_angle = 10;
-r = 10;
-v_0 = 0;
-
-
-
-% velocity for loop section
-height = [(h_0 - h_bottom):0.1:(h_0 - h_bottom + r), (h_0 - h_bottom + r):0.1:(h_0-h_bottom)];
-v_a = sqrt(v_0^2 + 2 * 9.81 * (h_0 - h_bottom));
-v_b = sqrt(v_0^2 + 2 * 9.81 * (h_0 - (h_bottom + r)));
-v_c = sqrt(v_0^2 + 2 * 9.81 * (h_0 - (h_bottom + 2 * r)));
-v_d = sqrt(v_0^2 + 2 * 9.81 * (h_0 - (h_bottom + r)));
-
-% Velocity for straight section
-distance = 0:0.1:((h_0 - h_bottom)/sind(str_angle));
-v_straight = sqrt(v_0^2 / 9.81 .* distance); 
-g_str_tot = cosd(str_angle);
-g_str_back = g_str_tot * cosd(str_angle);
-g_str_up = g_str_tot * sind(str_angle);
-
+% Initial Conditions
+r = 10; % Radius of loop (m)
+v_0 = 20; % Velocity of roller coaster going into the loop (m/s)
+g = 9.81; % Acceleration due to gravity (m/s^2)
+minv = sqrt(2 * g * 2 * r); % Minimum velocity to complete loop with current radius
 
 % length of track 
-d_str = (h_0 - h_bottom)/sind(str_angle);
-d_loop = 2 * pi * r;
+d_loop = 2 * pi * r; % length of track in meters
 
-d_tot = d_str + d_loop;
+% graph for loop
+theta = linspace(0, 2*pi, 200);
+x_loop = r .* sin(theta); % x distance
+y_loop = zeros(1, 200); % y change = 0
+z_loop = r .* sin(theta - (pi/2)) + r; % change in height over time
+
+% velocity for loop section
+vel = sqrt(v_0^2 - 2 * g .* z_loop);
+
+figure();
+plot(theta, vel);
+title("Distance vs Velocity");
+xlabel("X-Distance");
+ylabel("Velocity");
+
+
 
 % G's on the track 
-G_a_back = (v_a^2 / (9.81 * r)) + 1;  
-G_b_back = (v_b^2 / (9.81 * r));
-G_c_back = (v_c^2 / (9.81 * r)) - 1;
-G_d_back = (v_d^2 / (9.81 * r));
+G_loop_back = sin(theta); % G force exerted by the back of the seat
+G_loop_seat = (vel.^2) / (r*g) + cos(theta); % G force exerted by the bottom of the seat
+
+figure();
+plot(theta, G_loop_back);
+title("Distance vs Back of Seat G's");
+xlabel("X-Distance");
+ylabel("G-Force");
+
+figure();
+plot(theta, G_loop_seat);
+title("Distance vs Bottom of Seat G's");
+xlabel("X-Distance");
+ylabel("G-Force");
 
 
-%graph for straight section
-x_str = linspace(0, (h_0 - h_bottom) / tand(str_angle), 100);
-y_str = zeros(1, 100);
-z_str = linspace(0, (h_0-h_bottom), 100);
-
-%graph for loop
-theta_cir = linspace(0, 2*pi, 200);
-x_loop = r .* cos(theta_cir);
-y_loop = zeros(1, 200);
-z_loop =  r + r .* sin(theta_cir);
 
 %plot
-plot3(x_str, y_str, z_str, x_loop, y_loop, z_loop);
+figure();
+plot3(x_loop, y_loop, z_loop);
 
+%% 7) 3D Plot with Speed-Colored Line
+% "Surface Trick": replicate each array in 2 rows so that 'surf' draws 
+% a thin strip whose "edges" are color-interpolated by velocity.
 
+% Convert to row vectors (in case they're column vectors):
+X = x_loop(:).';
+Y = y_loop(:).';
+Z = z_loop(:).';
+C = vel(:).';   % color array (speed) must match dimension
 
+% Duplicate for 2-row surface
+X2 = [X; X];
+Y2 = [Y; Y];
+Z2 = [Z; Z];
+C2 = [C; C];
 
+figure('Name','3D Loop, Colored by Speed');
+surf(X2, Y2, Z2, C2,'EdgeColor','interp', ...   % interpolate color along edges
+    'FaceColor','none',  ...    % no colored faces, just edges
+    'LineWidth',2);
+axis equal; grid on;
+xlabel('X [m]'); ylabel('Y [m]'); zlabel('Z [m]');
+title('Vertical Loop in 3D (Line Colored by Speed)');
+colormap(jet); 
+clim([min(C) max(C)]);  % color scale matches velocity range
+colorbar('Ticks',linspace(min(C),max(C),5), ...
+         'Label','Speed (m/s)');
+view(45,20);
 
-% 
-% figure();
-% hold on;
-% r = 10;
-% xc = 0;
-% yc = r;
-% 
-% theta = linspace(0,2*pi);
-% x = r*cos(theta) + xc;
-% y = r*sin(theta) + yc;
-% plot(x,y)
-% 
-% 
-% axis equal
