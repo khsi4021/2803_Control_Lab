@@ -1,0 +1,3 @@
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec_vec, gs_0,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal_vec, gs_0_1000,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal + dist_braking_vec, gs_braking_back,'b');
