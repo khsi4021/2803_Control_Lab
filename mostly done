@@ -318,6 +318,7 @@ length_red = linspace(0,l_r,length(gs_up_red));
 
 pathlength_para = linspace(0,lengthParabola,100);
 gs_0 = linspace(0,0,100);
+gs_0_1000 = linspace(0,0,1000);
 lengthStrDec_vec = linspace(0,lengthStrDec,100);
 gs_StrDec_up_vec = linspace(gs_StrDec_up, gs_StrDec_up,100);
 gs_StrDec_back_vec = linspace(gs_StrDec_back,gs_StrDec_back,100);
@@ -348,6 +349,8 @@ title('gs up through seat');
 
 %% 
  % G's on the loop 
+v_loop = calcVelocity(125,zLoop);
+
 G_loop_forward = sin(thetaLoop); 
 G_loop_back = -G_loop_forward; 
 G_loop_up = (v_loop.^2) / (rLoop*g) + cos(thetaLoop); 
@@ -365,11 +368,11 @@ plot(length_blue, abs(gs_forward_blue_vec));
 plot(length_red(1:499) + l_b, gs_forward_red); %first part of red section
 plot([(.5*l_r)+l_b ; l_r+l_b], [0;0]); %second part of red section
 plot(l_b + l_r + pathlength_para,gs_0,'b');
-plot(l_b + l_r + lengthParabola + length_Turn_Trans_vec, gs_0,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans_vec, gs_0_1000,'b');
 plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked, gs_0,'b');
-plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop, G_loop_down,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop_1000, G_loop_down,'b');
+plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans, gs_0_1000,'b');
 
-%plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans,GArcTrans,'b');
 %plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec_vec, gs_StrDec_up_vec,'b');
 %plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal_vec, gs_Arcto0_up,'b');
 %plot(l_b + l_r + lengthParabola + length_Turn_Trans + pathlength_banked(1,100) + sLoop(1,100) + sTrans(1,1000) + lengthStrDec + lengthArcFinal + dist_braking_vec,gs_braking_up,'b');
